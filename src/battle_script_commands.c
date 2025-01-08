@@ -1291,22 +1291,16 @@ static void Cmd_critcalc(void)
         && !(Random() % sCriticalHitChance[critChance]))
     {
         if (gBattleMons[gBattlerAttacker].ability == ABILITY_SNIPER)
-        {
-            gCritMultiplier = 3;
-        }
+            gCritMultiplier = 225;
         else
-        {
-            gCritMultiplier = 2;
-        }
+            gCritMultiplier = 150;
     }
     else
-    {
-        gCritMultiplier = 1;
-    }
+        gCritMultiplier = 100;
 
     if (gBattleMons[gBattlerAttacker].ability == ABILITY_MERCILESS && gBattleMons[gBattlerTarget].status1 & STATUS1_PSN_ANY)
     {
-        gCritMultiplier = 2;
+        gCritMultiplier = 150;
     }
 
     gBattlescriptCurrInstr++;
@@ -1318,7 +1312,7 @@ static void Cmd_damagecalc(void)
     gBattleMoveDamage = CalculateBaseDamage(&gBattleMons[gBattlerAttacker], &gBattleMons[gBattlerTarget], gCurrentMove,
                                             sideStatus, gDynamicBasePower,
                                             gBattleStruct->dynamicMoveType, gBattlerAttacker, gBattlerTarget);
-    gBattleMoveDamage = gBattleMoveDamage * gCritMultiplier * gBattleScripting.dmgMultiplier;
+    gBattleMoveDamage = gBattleMoveDamage * gCritMultiplier * gBattleScripting.dmgMultiplier / 100;
 
     if (gStatuses3[gBattlerAttacker] & STATUS3_CHARGED_UP && gBattleMoves[gCurrentMove].type == TYPE_ELECTRIC)
         gBattleMoveDamage *= 2;
@@ -1343,7 +1337,7 @@ void AI_CalcDmg(u8 attacker, u8 defender)
                                             sideStatus, gDynamicBasePower,
                                             gBattleStruct->dynamicMoveType, attacker, defender);
     gDynamicBasePower = 0;
-    gBattleMoveDamage = gBattleMoveDamage * gCritMultiplier * gBattleScripting.dmgMultiplier;
+    gBattleMoveDamage = gBattleMoveDamage * gCritMultiplier * gBattleScripting.dmgMultiplier / 100;
 
     if (gStatuses3[attacker] & STATUS3_CHARGED_UP && gBattleMoves[gCurrentMove].type == TYPE_ELECTRIC)
         gBattleMoveDamage *= 2;
@@ -2090,7 +2084,7 @@ static void Cmd_critmessage(void)
 {
     if (gBattleControllerExecFlags == 0)
     {
-        if (gCritMultiplier > 1 && !(gMoveResultFlags & MOVE_RESULT_NO_EFFECT))
+        if (gCritMultiplier > 100 && !(gMoveResultFlags & MOVE_RESULT_NO_EFFECT))
         {
             PrepareStringBattle(STRINGID_CRITICALHIT, gBattlerAttacker);
             gBattleCommunication[MSG_DISPLAY] = 1;
@@ -3442,7 +3436,7 @@ static void Cmd_getexp(void)
             if (*exp == 0)
                 *exp = 1;
 
-            gExpShareExp = calculatedExp / 2;
+            gExpShareExp = calculatedExp / 3;
             if (gExpShareExp == 0)
                 gExpShareExp = 1;
 
@@ -3762,7 +3756,7 @@ static void MoveValuesCleanUp(void)
 {
     gMoveResultFlags = 0;
     gBattleScripting.dmgMultiplier = 1;
-    gCritMultiplier = 1;
+    gCritMultiplier = 100;
     gBattleCommunication[MOVE_EFFECT_BYTE] = 0;
     gBattleCommunication[MISS_TYPE] = 0;
     gHitMarker &= ~HITMARKER_DESTINYBOND;

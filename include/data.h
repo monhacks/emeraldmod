@@ -58,6 +58,7 @@ struct TrainerMonNoItemCustomMoves
 struct TrainerMonItemCustomMoves
 {
     u16 iv;
+    u8 evs[NUM_STATS];
     u8 lvl;
     u16 species;
     u16 heldItem;

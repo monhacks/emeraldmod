@@ -3776,18 +3776,6 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
         }
     }
 
-    if (defender->ability == ABILITY_AMPLIFY)
-    {
-        for (i = 0; sAttackingSoundMovesTable[i] != SOUND_MOVES_END; i++)
-        {
-            if (sAttackingSoundMovesTable[i] == gCurrentMove)
-            {
-                gBattleMovePower /= 2;
-                break;
-            }
-        }
-    }
-
     // Apply weather bonus
     if (WEATHER_HAS_EFFECT2) 
     {
@@ -3829,7 +3817,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
 
     if (IS_MOVE_PHYSICAL(gCurrentMove))
     {
-        if (gCritMultiplier > 1 || attacker->ability == ABILITY_UNAWARE)
+        if (gCritMultiplier > 100 || attacker->ability == ABILITY_UNAWARE)
         {
             // Critical hit (or Unaware), if attacker has lost attack stat stages then ignore stat drop
             if (attacker->statStages[STAT_ATK] > DEFAULT_STAT_STAGE)
@@ -3840,10 +3828,10 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
         else
             APPLY_STAT_MOD(damage, attacker, attack, STAT_ATK)
 
-        damage = damage * gBattleMovePower;
+        damage *= gBattleMovePower;
         damage *= (2 * attacker->level / 5 + 2);
 
-        if (gCritMultiplier > 1 || attacker->ability == ABILITY_UNAWARE)
+        if (gCritMultiplier > 100 || attacker->ability == ABILITY_UNAWARE)
         {
             // Critical hit (or Unaware), if defender has gained defense stat stages then ignore stat increase
             if (defender->statStages[STAT_DEF] < DEFAULT_STAT_STAGE)
@@ -3854,7 +3842,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
         else
             APPLY_STAT_MOD(damageHelper, defender, defense, STAT_DEF)
 
-        damage = damage / damageHelper;
+        damage /= damageHelper;
         damage /= 50;
 
         // Burn cuts attack in half
@@ -3862,7 +3850,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
             damage /= 2;
 
         // Apply Reflect
-        if ((sideStatus & SIDE_STATUS_REFLECT) && gCritMultiplier == 1 && attacker->ability != ABILITY_INFILTRATOR)
+        if ((sideStatus & SIDE_STATUS_REFLECT) && gCritMultiplier == 100 && attacker->ability != ABILITY_INFILTRATOR)
         {
             if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
                 damage = 2 * (damage / 3);
@@ -3884,7 +3872,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
 
     if (IS_MOVE_SPECIAL(gCurrentMove))
     {
-        if (gCritMultiplier > 1 || attacker->ability == ABILITY_UNAWARE)
+        if (gCritMultiplier > 100 || attacker->ability == ABILITY_UNAWARE)
         {
             // Critical hit (or Unaware), if attacker has lost sp. attack stat stages then ignore stat drop
             if (attacker->statStages[STAT_SPATK] > DEFAULT_STAT_STAGE)
@@ -3895,10 +3883,10 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
         else
             APPLY_STAT_MOD(damage, attacker, spAttack, STAT_SPATK)
 
-        damage = damage * gBattleMovePower;
+        damage *= gBattleMovePower;
         damage *= (2 * attacker->level / 5 + 2);
 
-        if (gCritMultiplier > 1 || attacker->ability == ABILITY_UNAWARE)
+        if (gCritMultiplier > 100 || attacker->ability == ABILITY_UNAWARE)
         {
             // Critical hit (or Unaware), if defender has gained sp. defense stat stages then ignore stat increase
             if (defender->statStages[STAT_SPDEF] < DEFAULT_STAT_STAGE)
@@ -3909,11 +3897,11 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
         else
             APPLY_STAT_MOD(damageHelper, defender, spDefense, STAT_SPDEF)
 
-        damage = (damage / damageHelper);
+        damage /= damageHelper;
         damage /= 50;
 
         // Apply Lightscreen
-        if ((sideStatus & SIDE_STATUS_LIGHTSCREEN) && gCritMultiplier == 1 && attacker->ability != ABILITY_INFILTRATOR)
+        if ((sideStatus & SIDE_STATUS_LIGHTSCREEN) && gCritMultiplier == 100 && attacker->ability != ABILITY_INFILTRATOR)
         {
             if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
                 damage = 2 * (damage / 3);

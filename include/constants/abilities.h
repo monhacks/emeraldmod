@@ -120,7 +120,7 @@
 #define ABILITY_SOLID_ROCK 116      // Done
 #define ABILITY_SNOW_WARNING 117    // Done
 #define ABILITY_SAND_RUSH 118       // Done
-#define ABILITY_FRISK 119
+#define ABILITY_PRANKSTER 119       // Done
 #define ABILITY_RECKLESS 120        // Done
 #define ABILITY_TRANSISTOR 121      // Done
 #define ABILITY_FLOWER_GIFT 122     // Done

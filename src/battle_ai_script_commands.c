@@ -1189,7 +1189,7 @@ static void Cmd_get_how_powerful_move_is(void)
         *(&gBattleStruct->dynamicMoveType) = 0;
         gBattleScripting.dmgMultiplier = 1;
         gMoveResultFlags = 0;
-        gCritMultiplier = 1;
+        gCritMultiplier = 100;
 
         // Considered move has power and is not in sIgnoredPowerfulMoveEffects
         // Check all other moves and calculate their power
@@ -1474,7 +1474,7 @@ static void Cmd_get_highest_type_effectiveness(void)
     *dynamicMoveType = 0;
     gBattleScripting.dmgMultiplier = 1;
     gMoveResultFlags = 0;
-    gCritMultiplier = 1;
+    gCritMultiplier = 100;
     AI_THINKING_STRUCT->funcResult = 0;
 
     for (i = 0; i < MAX_MON_MOVES; i++)
@@ -1520,7 +1520,7 @@ static void Cmd_if_type_effectiveness(void)
     gBattleStruct->dynamicMoveType = 0;
     gBattleScripting.dmgMultiplier = 1;
     gMoveResultFlags = 0;
-    gCritMultiplier = 1;
+    gCritMultiplier = 100;
 
     gBattleMoveDamage = AI_EFFECTIVENESS_x1;
     gCurrentMove = AI_THINKING_STRUCT->moveConsidered;
@@ -1743,7 +1743,7 @@ static void Cmd_if_can_faint(void)
     gBattleStruct->dynamicMoveType = 0;
     gBattleScripting.dmgMultiplier = 1;
     gMoveResultFlags = 0;
-    gCritMultiplier = 1;
+    gCritMultiplier = 100;
     gCurrentMove = AI_THINKING_STRUCT->moveConsidered;
     AI_CalcDmg(sBattler_AI, gBattlerTarget);
     TypeCalc(gCurrentMove, sBattler_AI, gBattlerTarget);
@@ -1772,18 +1772,16 @@ static void Cmd_if_cant_faint(void)
     gBattleStruct->dynamicMoveType = 0;
     gBattleScripting.dmgMultiplier = 1;
     gMoveResultFlags = 0;
-    gCritMultiplier = 1;
+    gCritMultiplier = 100;
     gCurrentMove = AI_THINKING_STRUCT->moveConsidered;
     AI_CalcDmg(sBattler_AI, gBattlerTarget);
     TypeCalc(gCurrentMove, sBattler_AI, gBattlerTarget);
 
     gBattleMoveDamage = gBattleMoveDamage * AI_THINKING_STRUCT->simulatedRNG[AI_THINKING_STRUCT->movesetIndex] / 100;
 
-#ifdef BUGFIX
     // Moves always do at least 1 damage.
     if (gBattleMoveDamage == 0)
         gBattleMoveDamage = 1;
-#endif
 
     if (gBattleMons[gBattlerTarget].hp > gBattleMoveDamage)
         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);

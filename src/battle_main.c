@@ -2077,6 +2077,10 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
                     SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
                     SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
                 }
+                for (j = 0; j < NUM_STATS; j++)
+                {
+                    SetMonData(&party[i], MON_DATA_HP_EV + j, &partyData[i].evs[j]);
+                }
                 SetMonData(&party[i], MON_DATA_ABILITY_NUM, &partyData[i].abilityNums);
                 break;
             }
@@ -4596,19 +4600,23 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
     u8 holdEffect = 0;
     u8 holdEffectParam = 0;
     u16 moveBattler1 = 0, moveBattler2 = 0;
+    u8 category1 = 0, category2 = 0;
+    s8 priority1 = 0, priority2 = 0;
+    u8 ability1 = gBattleMons[battler1].ability;
+    u8 ability2 = gBattleMons[battler2].ability;
 
     if (WEATHER_HAS_EFFECT)
     {
-        if ((gBattleMons[battler1].ability == ABILITY_SWIFT_SWIM && gBattleWeather & B_WEATHER_RAIN)
-            || (gBattleMons[battler1].ability == ABILITY_CHLOROPHYLL && gBattleWeather & B_WEATHER_SUN)
-            || (gBattleMons[battler1].ability == ABILITY_SAND_RUSH && gBattleWeather & B_WEATHER_SANDSTORM))
+        if ((ability1 == ABILITY_SWIFT_SWIM && gBattleWeather & B_WEATHER_RAIN)
+         || (ability1 == ABILITY_CHLOROPHYLL && gBattleWeather & B_WEATHER_SUN)
+         || (ability1 == ABILITY_SAND_RUSH && gBattleWeather & B_WEATHER_SANDSTORM))
             speedMultiplierBattler1 = 2;
         else
             speedMultiplierBattler1 = 1;
 
-        if ((gBattleMons[battler2].ability == ABILITY_SWIFT_SWIM && gBattleWeather & B_WEATHER_RAIN)
-            || (gBattleMons[battler2].ability == ABILITY_CHLOROPHYLL && gBattleWeather & B_WEATHER_SUN)
-            || (gBattleMons[battler2].ability == ABILITY_SAND_RUSH && gBattleWeather & B_WEATHER_SANDSTORM))
+        if ((ability2 == ABILITY_SWIFT_SWIM && gBattleWeather & B_WEATHER_RAIN)
+         || (ability2 == ABILITY_CHLOROPHYLL && gBattleWeather & B_WEATHER_SUN)
+         || (ability2 == ABILITY_SAND_RUSH && gBattleWeather & B_WEATHER_SANDSTORM))
             speedMultiplierBattler2 = 2;
         else
             speedMultiplierBattler2 = 1;
@@ -4619,16 +4627,7 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
         speedMultiplierBattler2 = 1;
     }
 
-    if (gBattleMons[battler1].ability == ABILITY_QUICK_FEET && gBattleMons[battler1].status2 & STATUS2_CONFUSION)
-        speedMultiplierBattler1 = 2;
-    else
-        speedMultiplierBattler1 = 1;
-
-    if (gBattleMons[battler2].ability == ABILITY_QUICK_FEET && gBattleMons[battler2].status2 & STATUS2_CONFUSION)
-        speedMultiplierBattler2 = 2;
-    else
-        speedMultiplierBattler2 = 1;
-
+    // Battler 1 speed calc
     speedBattler1 = (gBattleMons[battler1].speed * speedMultiplierBattler1)
                 * (gStatStageRatios[gBattleMons[battler1].statStages[STAT_SPEED]][0])
                 / (gStatStageRatios[gBattleMons[battler1].statStages[STAT_SPEED]][1]);
@@ -4653,10 +4652,10 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
         speedBattler1 /= 10;
     }
 
-    if (gBattleMons[battler1].status1 & STATUS1_PARALYSIS && gBattleMons[battler1].ability != ABILITY_QUICK_FEET)
+    if (gBattleMons[battler1].status1 & STATUS1_PARALYSIS && ability1 != ABILITY_QUICK_FEET)
         speedBattler1 /= 2;
 
-    if (gBattleMons[battler1].status1 & STATUS1_ANY && gBattleMons[battler1].ability == ABILITY_QUICK_FEET)
+    if (gBattleMons[battler1].status1 & STATUS1_ANY && ability1 == ABILITY_QUICK_FEET)
     {
         speedBattler1 *= 15;
         speedBattler1 /= 10;
@@ -4665,8 +4664,7 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
     if (holdEffect == HOLD_EFFECT_QUICK_CLAW && gRandomTurnNumber < (0xFFFF * holdEffectParam) / 100)
         speedBattler1 = UINT_MAX;
 
-    // check second battlerId's speed
-
+    // Battler 2 speed calc
     speedBattler2 = (gBattleMons[battler2].speed * speedMultiplierBattler2)
                 * (gStatStageRatios[gBattleMons[battler2].statStages[STAT_SPEED]][0])
                 / (gStatStageRatios[gBattleMons[battler2].statStages[STAT_SPEED]][1]);
@@ -4691,10 +4689,10 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
         speedBattler2 /= 10;
     }
 
-    if (gBattleMons[battler2].status1 & STATUS1_PARALYSIS && gBattleMons[battler2].ability != ABILITY_QUICK_FEET)
+    if (gBattleMons[battler2].status1 & STATUS1_PARALYSIS && ability2 != ABILITY_QUICK_FEET)
         speedBattler2 /= 2;
 
-    if (gBattleMons[battler2].status1 & STATUS1_ANY && gBattleMons[battler2].ability == ABILITY_QUICK_FEET)
+    if (gBattleMons[battler2].status1 & STATUS1_ANY && ability2 == ABILITY_QUICK_FEET)
     {
         speedBattler2 *= 15;
         speedBattler2 /= 10;
@@ -4731,11 +4729,22 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
             moveBattler2 = MOVE_NONE;
     }
 
+    priority1 = gBattleMoves[moveBattler1].priority;
+    priority2 = gBattleMoves[moveBattler2].priority;
+    category1 = gBattleMoves[moveBattler1].category;
+    category2 = gBattleMoves[moveBattler2].category;
+
+    // Check for prankster priority
+    if (ability1 == ABILITY_PRANKSTER && category1 == MOVE_CATEGORY_STATUS)
+        priority1++;
+    if (ability2 == ABILITY_PRANKSTER && category2 == MOVE_CATEGORY_STATUS)   
+        priority2++;
+
     // both move priorities are different than 0
-    if (gBattleMoves[moveBattler1].priority != 0 || gBattleMoves[moveBattler2].priority != 0)
+    if (priority1 != 0 || priority2 != 0)
     {
         // both priorities are the same
-        if (gBattleMoves[moveBattler1].priority == gBattleMoves[moveBattler2].priority)
+        if (priority1 == priority2)
         {
             if (speedBattler1 == speedBattler2 && Random() & 1)
                 strikesFirst = 2; // same speeds, same priorities
@@ -4744,7 +4753,7 @@ u8 GetWhoStrikesFirst(u8 battler1, u8 battler2, bool8 ignoreChosenMoves)
 
             // else battler1 has more speed
         }
-        else if (gBattleMoves[moveBattler1].priority < gBattleMoves[moveBattler2].priority)
+        else if (priority1 < priority2)
             strikesFirst = 1; // battler2's move has greater priority
 
         // else battler1's move has greater priority

@@ -88,7 +88,7 @@ void HandleAction_UseMove(void)
         return;
     }
 
-    gCritMultiplier = 1;
+    gCritMultiplier = 100;
     gBattleScripting.dmgMultiplier = 1;
     gBattleStruct->atkCancellerTracker = 0;
     gMoveResultFlags = 0;
@@ -1572,7 +1572,10 @@ u8 DoBattlerEndTurnEffects(void)
                     && gBattleMons[gActiveBattler].hp != 0
                     && gBattleMons[gActiveBattler].ability != ABILITY_MAGIC_GUARD)
                 {
-                    gBattleMoveDamage = gBattleMons[gActiveBattler].maxHP / 8;
+                    if (gBattleMons[gActiveBattler].ability == ABILITY_HEATPROOF)
+                        gBattleMoveDamage = gBattleMons[gActiveBattler].maxHP / 16;
+                    else
+                        gBattleMoveDamage = gBattleMons[gActiveBattler].maxHP / 8;
                     if (gBattleMoveDamage == 0)
                         gBattleMoveDamage = 1;
                     BattleScriptExecute(BattleScript_BurnTurnDmg);
